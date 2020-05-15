@@ -37,7 +37,7 @@ impl App {
         }
     }
 
-    fn get_endpoints(&self) -> HashMap<String,fn(String) -> http_types::Response> {
+    fn get_endpoints(&self) -> HashMap<String, fn(String) -> http_types::Response> {
         self.endpoints.clone()
     }
 }
@@ -58,7 +58,16 @@ pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
 
         println!("Listening at: http://{}", bind);
 
-        app.listen(bind).await?;
-        std::process::exit(0);
+        match crate::auth::get_token_from_env() {
+            Some(token) => {
+                println!("CLIENT_TOKEN: {}", token);
+                app.listen(bind).await?;
+                std::process::exit(0);
+            }
+            None => {
+                // app.listen(bind).await?;
+                std::process::exit(1);
+            }
+        }
     })
 }

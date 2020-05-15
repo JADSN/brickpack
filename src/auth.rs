@@ -19,17 +19,6 @@ fn get_token_from_request(request: &Request<State>) -> Option<String> {
     }
 }
 
-fn get_token_from_env() -> Option<String> {
-    use std::env;
-    match env::var("CLIENT_TOKEN") {
-        Ok(value) => Some(value),
-        Err(error) => {
-            eprintln!("ERROR: {}", error);
-            None
-        }
-    }
-}
-
 fn is_valid_token(token: String) -> bool {
     // TODO: Implement Envvar -> `auth.toml`
     // TODO: Add more info (Request IP Address)
@@ -44,6 +33,17 @@ fn is_valid_token(token: String) -> bool {
     } else {
         eprintln!("ACCESS DENIED: CLIENT_TOKEN: {:?}", token);
         false
+    }
+}
+
+pub fn get_token_from_env() -> Option<String> {
+    use std::env;
+    match env::var("CLIENT_TOKEN") {
+        Ok(value) => Some(value),
+        Err(_) => {
+            eprintln!("ERROR: environment variable CLIENT_TOKEN not found");
+            None
+        }
     }
 }
 
