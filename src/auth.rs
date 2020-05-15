@@ -3,7 +3,7 @@ use tide::Request;
 use crate::in_memory_db::State;
 use crate::maintenance::MaintenanceMode;
 
-fn get_token(request: &Request<State>) -> Option<String> {
+fn get_token_from_request(request: &Request<State>) -> Option<String> {
     match request.header(&"Authorization".parse().unwrap()) {
         Some(vec) => match vec.first() {
             Some(header_value) => {
@@ -19,10 +19,26 @@ fn get_token(request: &Request<State>) -> Option<String> {
     }
 }
 
+fn get_token_from_env() -> Option<String> {
+    use std::env;
+    match env::var("CLIENT_TOKEN") {
+        Ok(value) => Some(value),
+        Err(error) => {
+            eprintln!("ERROR: {}", error);
+            None
+        }
+    }
+}
+
 fn is_valid_token(token: String) -> bool {
     // TODO: Implement Envvar -> `auth.toml`
     // TODO: Add more info (Request IP Address)
-    if token == "9admin9" {
+    let token_from_env = match get_token_from_env() {
+        Some(token) => token,
+        None => return false,
+    };
+
+    if token == token_from_env {
         eprintln!("Authenticated: CLIENT_TOKEN: {:?}", token);
         true
     } else {
@@ -33,7 +49,7 @@ fn is_valid_token(token: String) -> bool {
 
 pub fn is_authenticated(request: &Request<State>) -> bool {
     dbg!(request);
-    match get_token(&request) {
+    match get_token_from_request(&request) {
         Some(token) => is_valid_token(token),
         None => false,
     }
