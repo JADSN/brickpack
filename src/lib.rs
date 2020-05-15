@@ -25,7 +25,7 @@ impl App {
         self.bind = bind;
     }
 
-    pub fn endpoint(&mut self, endpoint: String, handler: fn(String) -> http_types::Response) {
+    pub fn add_endpoint(&mut self, endpoint: String, handler: fn(String) -> http_types::Response) {
         self.endpoints.insert(endpoint, handler);
     }
 
@@ -40,6 +40,28 @@ impl App {
     fn get_endpoints(&self) -> HashMap<String, fn(String) -> http_types::Response> {
         self.endpoints.clone()
     }
+
+    pub fn get_serialized_endpoints(&self) -> Vec<String> {
+        let mut endpoints: Vec<String> = vec![];
+        for endpoint in self.get_endpoints().keys() {
+            endpoints.push(endpoint.to_string());
+        }
+        endpoints
+    }
+}
+
+fn show_endpoints(endpoints: Vec<String>) {
+    println!();
+    println!("Default Routes:");
+    println!("                      GET   - /");
+    println!("                      GET   - /auth");
+    println!("                      PATCH - /maintenance");
+    println!();
+    println!("User-Defined Routes:");
+    for endpoint in endpoints {
+        println!("                      POST  - /api/{}", endpoint)
+    }
+    println!();
 }
 
 pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
@@ -48,6 +70,7 @@ pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
 
     task::block_on(async {
         let bind = brickpack_app.bind.clone();
+        let endpoints = brickpack_app.get_serialized_endpoints();
         let mut app = Server::with_state(State::new(brickpack_app));
         app.at("/").get(crate::routes::main_index);
         app.at("/auth").get(crate::routes::check_auth);
@@ -56,11 +79,13 @@ pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
         app.at("/api/:endpoint")
             .post(crate::api::dispatcher::presenter::handler);
 
-        println!("Listening at: http://{}", bind);
-
         match crate::auth::get_token_from_env() {
             Some(token) => {
+                show_endpoints(endpoints);
+                println!();
                 println!("CLIENT_TOKEN: {}", token);
+                println!();
+                println!("Listening at: http://{}", bind);
                 app.listen(bind).await?;
                 std::process::exit(0);
             }
