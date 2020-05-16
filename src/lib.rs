@@ -74,8 +74,8 @@ pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
         let bind = brickpack_app.bind.clone();
         let endpoints = brickpack_app.get_serialized_endpoints();
         let mut app = Server::with_state(State::new(brickpack_app));
-        app.at("/").get(crate::api::main_index);
-        app.at("/auth").get(crate::api::check_auth);
+        app.at("/").get(crate::api::main_index::handler);
+        app.at("/auth").get(crate::api::check_auth::handler);
         app.at("/maintenance")
             .patch(crate::api::maintenance_mode::presenter::handler);
         app.at("/api/:endpoint")
