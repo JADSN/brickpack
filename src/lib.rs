@@ -54,12 +54,12 @@ fn show_endpoints(endpoints: Vec<String>) {
     println!();
     println!("Brickpack Web Framework v{}", env!("CARGO_PKG_VERSION"));
     println!();
-    println!("Default Routes:");
+    println!("Service Routes:");
     println!("                      GET   - /");
     println!("                      GET   - /auth");
     println!("                      PATCH - /maintenance");
     println!();
-    println!("User-Defined Routes:");
+    println!("Custom Routes:");
     for endpoint in endpoints {
         println!("                      POST  - /api/{}", endpoint)
     }
