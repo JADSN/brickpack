@@ -1,6 +1,6 @@
 # BrickPack
 
-A High Level Rust Framework to build CNA (Cloud Native Application)/Microservice
+A high-level Rust Web Framework to build CNA (Cloud Native Applications)/Microservices
 
 ## Sample App
 
