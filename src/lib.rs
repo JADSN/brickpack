@@ -25,8 +25,8 @@ impl App {
         self.bind = bind;
     }
 
-    pub fn add_endpoint(&mut self, endpoint: String, handler: fn(String) -> http_types::Response) {
-        self.endpoints.insert(endpoint, handler);
+    pub fn add_endpoint(&mut self, endpoint: &str, handler: fn(String) -> http_types::Response) {
+        self.endpoints.insert(endpoint.to_string(), handler);
     }
 
     pub fn get_handler(&self, endpoint: String) -> Option<fn(String) -> http_types::Response> {
