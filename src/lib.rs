@@ -51,6 +51,9 @@ impl App {
 }
 
 fn show_endpoints(endpoints: Vec<String>) {
+    println!("Loading Brickpack...");
+    println!();
+    println!("Brickpack Web Framework v{}", env!("CARGO_PKG_VERSION"));
     println!();
     println!("Default Routes:");
     println!("                      GET   - /");
