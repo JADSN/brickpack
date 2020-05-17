@@ -6,9 +6,9 @@ use crate::in_memory_db::State;
 
 mod api;
 mod auth;
+pub mod http_client;
 mod in_memory_db;
 mod maintenance;
-pub mod http_client;
 
 #[derive(Debug, Default)]
 pub struct App {
@@ -25,11 +25,18 @@ impl App {
         self.bind = bind;
     }
 
-    pub fn add_endpoint(&mut self, endpoint: &str, handler: fn(Option<String>) -> http_types::Response) {
+    pub fn add_endpoint(
+        &mut self,
+        endpoint: &str,
+        handler: fn(Option<String>) -> http_types::Response,
+    ) {
         self.endpoints.insert(endpoint.to_string(), handler);
     }
 
-    pub fn get_handler(&self, endpoint: String) -> Option<fn(Option<String>) -> http_types::Response> {
+    pub fn get_handler(
+        &self,
+        endpoint: String,
+    ) -> Option<fn(Option<String>) -> http_types::Response> {
         let endpoints = self.get_endpoints();
         match endpoints.get(&endpoint) {
             Some(&handler) => Some(handler),
@@ -54,16 +61,18 @@ fn show_endpoints(endpoints: Vec<String>) {
     println!();
     println!("Brickpack Web Framework v{}", env!("CARGO_PKG_VERSION"));
     println!();
-    println!("Service Routes:");
-    println!("                      GET   - /");
-    println!("                      GET   - /auth");
-    println!("                      PATCH - /maintenance");
+    println!("System Endpoints:");
+    println!("                       GET   - /");
+    println!("                       GET   - /auth");
+    println!("                       PATCH - /maintenance");
     println!();
-    println!("Custom Routes:");
-    for endpoint in endpoints {
-        println!("                      POST  - /api/{}", endpoint)
+    if !endpoints.is_empty() {
+        println!("Application Endpoints:");
+        for endpoint in endpoints {
+            println!("                       POST  - /api/{}", endpoint)
+        }
+        println!();
     }
-    println!();
 }
 
 pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
