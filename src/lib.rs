@@ -69,9 +69,13 @@ fn show_endpoints(endpoints: Vec<String>) {
 pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
     use async_std::task;
     use tide::Server;
+    const DEFAULT_LISTEN: &str = "127.0.0.1:8000";
 
     task::block_on(async {
-        let bind = brickpack_app.bind.clone();
+        let mut bind = brickpack_app.bind.clone();
+        if bind.is_empty() {
+            bind = DEFAULT_LISTEN.to_string();
+        }
         let endpoints = brickpack_app.get_serialized_endpoints();
         let mut app = Server::with_state(State::new(brickpack_app));
         app.at("/").get(crate::api::main_index::handler);
