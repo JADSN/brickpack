@@ -8,10 +8,11 @@ mod api;
 mod auth;
 mod in_memory_db;
 mod maintenance;
+pub mod http_client;
 
 #[derive(Debug, Default)]
 pub struct App {
-    endpoints: HashMap<String, fn(String) -> http_types::Response>,
+    endpoints: HashMap<String, fn(Option<String>) -> http_types::Response>,
     bind: String,
 }
 
@@ -24,11 +25,11 @@ impl App {
         self.bind = bind;
     }
 
-    pub fn add_endpoint(&mut self, endpoint: &str, handler: fn(String) -> http_types::Response) {
+    pub fn add_endpoint(&mut self, endpoint: &str, handler: fn(Option<String>) -> http_types::Response) {
         self.endpoints.insert(endpoint.to_string(), handler);
     }
 
-    pub fn get_handler(&self, endpoint: String) -> Option<fn(String) -> http_types::Response> {
+    pub fn get_handler(&self, endpoint: String) -> Option<fn(Option<String>) -> http_types::Response> {
         let endpoints = self.get_endpoints();
         match endpoints.get(&endpoint) {
             Some(&handler) => Some(handler),
@@ -36,7 +37,7 @@ impl App {
         }
     }
 
-    fn get_endpoints(&self) -> HashMap<String, fn(String) -> http_types::Response> {
+    fn get_endpoints(&self) -> HashMap<String, fn(Option<String>) -> http_types::Response> {
         self.endpoints.clone()
     }
 
@@ -50,7 +51,6 @@ impl App {
 }
 
 fn show_endpoints(endpoints: Vec<String>) {
-    println!("Loading Brickpack...");
     println!();
     println!("Brickpack Web Framework v{}", env!("CARGO_PKG_VERSION"));
     println!();
@@ -92,7 +92,6 @@ pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
                 std::process::exit(0);
             }
             None => {
-                // app.listen(bind).await?;
                 std::process::exit(1);
             }
         }
