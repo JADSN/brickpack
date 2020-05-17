@@ -15,7 +15,7 @@ Service Routes:
 
 Custom Routes:
                       POST  - /api/<custom-endpoint1>
-                      POST  - /api/<custom-endpoint1>
+                      POST  - /api/<custom-endpoint2>
 
 
 CLIENT_TOKEN: SoMeLoNgStringLoReMiPsUmSoMeLoNgStringLoReMiPsUm
