@@ -1,4 +1,4 @@
-use crate::in_memory_db::State;
+use crate::global_state::State;
 use http_types::{Response, StatusCode};
 use tide::Request;
 

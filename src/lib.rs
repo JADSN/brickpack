@@ -1,19 +1,19 @@
 #![warn(clippy::all)]
 
-use std::collections::HashMap;
-
-use crate::in_memory_db::State;
-
 mod api;
 mod auth;
+mod global_state;
 pub mod http_client;
-mod in_memory_db;
 mod maintenance;
+
+use std::collections::HashMap;
+
+use crate::global_state::State;
 
 #[derive(Debug, Default)]
 pub struct App {
     endpoints: HashMap<String, fn(Option<String>) -> http_types::Response>,
-    bind: String,
+    listen: String,
 }
 
 impl App {
@@ -21,8 +21,8 @@ impl App {
         App::default()
     }
 
-    pub fn set_bind(&mut self, bind: String) {
-        self.bind = bind;
+    pub fn listen(&mut self, listen: String) {
+        self.listen = listen;
     }
 
     pub fn add_endpoint(
@@ -81,9 +81,9 @@ pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
     const DEFAULT_LISTEN: &str = "127.0.0.1:8000";
 
     task::block_on(async {
-        let mut bind = brickpack_app.bind.clone();
-        if bind.is_empty() {
-            bind = DEFAULT_LISTEN.to_string();
+        let mut listen = brickpack_app.listen.clone();
+        if listen.is_empty() {
+            listen = DEFAULT_LISTEN.to_string();
         }
         let endpoints = brickpack_app.get_serialized_endpoints();
         let mut app = Server::with_state(State::new(brickpack_app));
@@ -100,8 +100,8 @@ pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
                 println!();
                 println!("CLIENT_TOKEN: {}", token);
                 println!();
-                println!("Listening at: http://{}", bind);
-                app.listen(bind).await?;
+                println!("Listening at: http://{}", listen);
+                app.listen(listen).await?;
                 std::process::exit(0);
             }
             None => {

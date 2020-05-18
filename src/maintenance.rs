@@ -1,4 +1,4 @@
-use crate::in_memory_db::State;
+use crate::global_state::State;
 
 pub struct MaintenanceMode;
 

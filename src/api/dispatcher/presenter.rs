@@ -3,7 +3,7 @@ use tide::{Request, Response};
 
 use crate::api::{BodyResponse, StatusMessage};
 use crate::auth::{is_authenticated, is_in_maintenance_mode};
-use crate::in_memory_db::State;
+use crate::global_state::State;
 
 use super::model;
 use super::view;
@@ -27,10 +27,7 @@ pub async fn handler(request: Request<State>) -> tide::Result {
                 }
             }
         } else {
-            Err(http_types::Error::from_str(
-                StatusCode::Unauthorized,
-                "Access Denied",
-            ))
+            Err(http_types::Error::from_str(StatusCode::Unauthorized, "Access Denied"))
         }
     } else {
         let body_response = BodyResponse {

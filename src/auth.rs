@@ -1,6 +1,6 @@
 use tide::Request;
 
-use crate::in_memory_db::State;
+use crate::global_state::State;
 use crate::maintenance::MaintenanceMode;
 
 fn get_token_from_request(request: &Request<State>) -> Option<String> {

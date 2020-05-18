@@ -3,7 +3,7 @@ use serde::Deserialize;
 use tide::{Request, Response};
 
 use crate::auth::{is_authenticated};
-use crate::in_memory_db::State;
+use crate::global_state::State;
 
 use super::model;
 use super::view;
