@@ -3,16 +3,19 @@ use std::process::Command;
 
 async fn curl(req: Request, token: Option<String>) -> Result<Response, Response> {
     let url = req.url().clone();
-    let body_json = req.body_string().await.unwrap();
+    let method = req.method().to_string();
+    let body = req.body_string().await.unwrap();
     let token = token.unwrap_or_else(|| "".to_string());
-    // r#"curl -f --request POST \
     let cmd_line = format!(
-        r#"curl -f --request GET \
+        r#"curl -f --request {method} \
         --header 'content-type: application/json' \
-        --header 'authorization: Bearer {}' \
-    --url {} \
-    --data '{}'"#,
-        token, url, body_json
+        --header 'authorization: Bearer {token}' \
+    --url {url} \
+    --data '{body}'"#,
+        method = method,
+        token = token,
+        url = url,
+        body = body
     );
     let command = Command::new("sh")
         .arg("-c")
