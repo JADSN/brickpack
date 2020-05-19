@@ -17,6 +17,8 @@ pub struct App {
 }
 
 impl App {
+    // * Public methods
+
     pub fn new() -> App {
         App::default()
     }
@@ -44,69 +46,74 @@ impl App {
         }
     }
 
+    pub fn run(self) -> Result<(), std::io::Error> {
+        use async_std::task;
+        use tide::Server;
+        const DEFAULT_LISTEN: &str = "127.0.0.1:8000";
+        task::block_on(async {
+            let listen = if self.get_listen().is_empty() {
+                DEFAULT_LISTEN.to_string()
+            } else {
+                self.get_listen()
+            };
+            self.startup_message();
+            let mut app = Server::with_state(State::new(self));
+            app.at("/").get(crate::api::main_index::handler);
+            app.at("/auth").get(crate::api::check_auth::handler);
+            app.at("/maintenance")
+                .patch(crate::api::maintenance_mode::presenter::handler);
+            app.at("/api/:endpoint")
+                .post(crate::api::dispatcher::presenter::handler);
+            match crate::auth::get_token_from_env() {
+                Some(token) => {
+                    println!();
+                    println!("CLIENT_TOKEN: {}", token);
+                    println!();
+                    println!("Listening at: http://{}", listen);
+                    app.listen(listen).await?;
+                    std::process::exit(0);
+                }
+                None => {
+                    std::process::exit(1);
+                }
+            }
+        })
+    }
+
+    // * Private methods
+
+    fn get_listen(&self) -> String {
+        self.listen.clone()
+    }
+
     fn get_endpoints(&self) -> HashMap<String, fn(Option<String>) -> http_types::Response> {
         self.endpoints.clone()
     }
 
-    pub fn get_serialized_endpoints(&self) -> Vec<String> {
+    fn get_serialized_endpoints(&self) -> Vec<String> {
         let mut endpoints: Vec<String> = vec![];
         for endpoint in self.get_endpoints().keys() {
             endpoints.push(endpoint.to_string());
         }
         endpoints
     }
-}
 
-fn show_endpoints(endpoints: Vec<String>) {
-    println!();
-    println!("Brickpack Web Framework v{}", env!("CARGO_PKG_VERSION"));
-    println!();
-    println!("System Endpoints:");
-    println!("                       GET   - /");
-    println!("                       GET   - /auth");
-    println!("                       PATCH - /maintenance");
-    println!();
-    if !endpoints.is_empty() {
-        println!("Application Endpoints:");
-        for endpoint in endpoints {
-            println!("                       POST  - /api/{}", endpoint)
-        }
+    fn startup_message(&self) {
+        let endpoints = self.get_serialized_endpoints();
         println!();
+        println!("Brickpack Web Framework v{}", env!("CARGO_PKG_VERSION"));
+        println!();
+        println!("System Endpoints:");
+        println!("                       GET   - /");
+        println!("                       GET   - /auth");
+        println!("                       PATCH - /maintenance");
+        println!();
+        if !endpoints.is_empty() {
+            println!("Application Endpoints:");
+            for endpoint in endpoints {
+                println!("                       POST  - /api/{}", endpoint)
+            }
+            println!();
+        }
     }
-}
-
-pub fn run(brickpack_app: App) -> Result<(), std::io::Error> {
-    use async_std::task;
-    use tide::Server;
-    const DEFAULT_LISTEN: &str = "127.0.0.1:8000";
-
-    task::block_on(async {
-        let mut listen = brickpack_app.listen.clone();
-        if listen.is_empty() {
-            listen = DEFAULT_LISTEN.to_string();
-        }
-        let endpoints = brickpack_app.get_serialized_endpoints();
-        let mut app = Server::with_state(State::new(brickpack_app));
-        app.at("/").get(crate::api::main_index::handler);
-        app.at("/auth").get(crate::api::check_auth::handler);
-        app.at("/maintenance")
-            .patch(crate::api::maintenance_mode::presenter::handler);
-        app.at("/api/:endpoint")
-            .post(crate::api::dispatcher::presenter::handler);
-
-        match crate::auth::get_token_from_env() {
-            Some(token) => {
-                show_endpoints(endpoints);
-                println!();
-                println!("CLIENT_TOKEN: {}", token);
-                println!();
-                println!("Listening at: http://{}", listen);
-                app.listen(listen).await?;
-                std::process::exit(0);
-            }
-            None => {
-                std::process::exit(1);
-            }
-        }
-    })
 }
