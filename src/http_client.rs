@@ -3,15 +3,18 @@ use std::process::Command;
 
 async fn curl(req: Request, token: Option<String>) -> Result<Response, Response> {
     let url = req.url().clone();
+    let user_agent = format!("{} v{}", env!("CARGO_PKG_NAME"),env!("CARGO_PKG_VERSION"));
     let method = req.method().to_string();
     let body = req.body_string().await.unwrap();
     let token = token.unwrap_or_else(|| "".to_string());
     let cmd_line = format!(
         r#"curl -f --request {method} \
-        --header 'content-type: application/json' \
-        --header 'authorization: Bearer {token}' \
+        --header 'User-Agent: {user_agent}' \
+        --header 'Content-Type: application/json' \
+        --header 'Authorization: Bearer {token}' \
     --url {url} \
     --data '{body}'"#,
+        user_agent = user_agent,
         method = method,
         token = token,
         url = url,
