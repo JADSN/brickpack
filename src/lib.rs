@@ -4,7 +4,6 @@ mod api;
 mod auth;
 mod global_state;
 pub mod http_client;
-mod maintenance;
 
 use std::collections::HashMap;
 

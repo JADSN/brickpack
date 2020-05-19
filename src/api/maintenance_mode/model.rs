@@ -1,7 +1,6 @@
 use tide::Request;
 
 use crate::api::StatusMessage;
-use crate::maintenance::MaintenanceMode;
 use crate::global_state::State;
 
 pub fn maintenance_mode(
@@ -9,9 +8,9 @@ pub fn maintenance_mode(
     mode: bool,
 ) -> Result<StatusMessage, StatusMessage> {
     if mode {
-        MaintenanceMode::set_on(&request.state());
+        request.state().maintenance_mode_on();
     } else {
-        MaintenanceMode::set_off(&request.state());
+        request.state().maintenance_mode_off();
     }
     Ok(StatusMessage::Saved)
 }

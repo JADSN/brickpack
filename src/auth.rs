@@ -1,7 +1,6 @@
 use tide::Request;
 
 use crate::global_state::State;
-use crate::maintenance::MaintenanceMode;
 
 fn get_token_from_request(request: &Request<State>) -> Option<String> {
     match request.header(&"Authorization".parse().unwrap()) {
@@ -56,5 +55,5 @@ pub fn is_authenticated(request: &Request<State>) -> bool {
 }
 
 pub fn is_in_maintenance_mode(request: &Request<State>) -> bool {
-    MaintenanceMode::get_mode(&request.state())
+    request.state().get_maintenance_mode()
 }

@@ -15,6 +15,20 @@ impl State {
             brickpack: app
         }
     }
+    pub fn maintenance_mode_on(&self) {
+        let mut maintenance_mode = self.maintenance_mode.write().unwrap();
+        *maintenance_mode = true;
+    }
+
+    pub fn maintenance_mode_off(&self) {
+        let mut maintenance_mode = self.maintenance_mode.write().unwrap();
+        *maintenance_mode = false;
+    }
+
+    pub fn get_maintenance_mode(&self) -> bool {
+        let maintenance_mode = self.maintenance_mode.read().unwrap();
+        *maintenance_mode
+    }
 }
 
 
