@@ -1,14 +1,17 @@
 use async_std::task;
 use http_types::{Method, Request, Response, StatusCode, Url};
 use std::process::Command;
+use std::str::FromStr;
 
 pub fn http_client(
+    method: String,
     url: String,
     token: Option<String>,
     body_string: Option<String>,
 ) -> Result<String, String> {
     task::block_on(async {
-        let mut req = Request::new(Method::Get, Url::parse(&url).unwrap());
+        let parsed_method = Method::from_str(&method).unwrap();
+        let mut req = Request::new(parsed_method, Url::parse(&url).unwrap());
         let body_string = body_string.unwrap_or_else(|| "".to_string());
         req.set_body(body_string);
         match curl(req, token).await {
