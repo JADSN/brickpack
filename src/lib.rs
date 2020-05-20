@@ -5,13 +5,14 @@ mod auth;
 mod global_state;
 pub mod http_client;
 
+use http_types::Response;
 use std::collections::HashMap;
 
 use crate::global_state::State;
 
 #[derive(Debug, Default)]
 pub struct App {
-    endpoints: HashMap<String, fn(Option<String>) -> http_types::Response>,
+    endpoints: HashMap<String, fn(Option<String>) -> Response>,
     listen: String,
 }
 
@@ -26,18 +27,11 @@ impl App {
         self.listen = listen;
     }
 
-    pub fn add_endpoint(
-        &mut self,
-        endpoint: &str,
-        handler: fn(Option<String>) -> http_types::Response,
-    ) {
+    pub fn add_endpoint(&mut self, endpoint: &str, handler: fn(Option<String>) -> Response) {
         self.endpoints.insert(endpoint.to_string(), handler);
     }
 
-    pub fn get_handler(
-        &self,
-        endpoint: String,
-    ) -> Option<fn(Option<String>) -> http_types::Response> {
+    pub fn get_handler(&self, endpoint: String) -> Option<fn(Option<String>) -> Response> {
         let endpoints = self.get_endpoints();
         match endpoints.get(&endpoint) {
             Some(&handler) => Some(handler),
@@ -85,7 +79,7 @@ impl App {
         self.listen.clone()
     }
 
-    fn get_endpoints(&self) -> HashMap<String, fn(Option<String>) -> http_types::Response> {
+    fn get_endpoints(&self) -> HashMap<String, fn(Option<String>) -> Response> {
         self.endpoints.clone()
     }
 

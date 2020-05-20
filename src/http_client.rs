@@ -1,4 +1,5 @@
-use http_types::{Request, Response, StatusCode};
+use async_std::task;
+use http_types::{Method, Request, Response, StatusCode, Url};
 use std::process::Command;
 
 pub fn http_client(
@@ -6,9 +7,6 @@ pub fn http_client(
     token: Option<String>,
     body_string: Option<String>,
 ) -> Result<String, String> {
-    use async_std::task;
-    use http_types::{Method, Url};
-
     task::block_on(async {
         let mut req = Request::new(Method::Get, Url::parse(&url).unwrap());
         let body_string = body_string.unwrap_or_else(|| "".to_string());
@@ -28,7 +26,6 @@ pub fn http_client(
         }
     })
 }
-
 
 async fn curl(req: Request, token: Option<String>) -> Result<Response, Response> {
     let url = req.url().clone();
