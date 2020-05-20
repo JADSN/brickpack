@@ -1,9 +1,38 @@
 use http_types::{Request, Response, StatusCode};
 use std::process::Command;
 
+pub fn http_client(
+    url: String,
+    token: Option<String>,
+    body_string: Option<String>,
+) -> Result<String, String> {
+    use async_std::task;
+    use http_types::{Method, Url};
+
+    task::block_on(async {
+        let mut req = Request::new(Method::Get, Url::parse(&url).unwrap());
+        let body_string = body_string.unwrap_or_else(|| "".to_string());
+        req.set_body(body_string);
+        match curl(req, token).await {
+            Ok(response) => {
+                let body_string = response.body_string().await.unwrap();
+                println!("{}", &body_string);
+                Ok(body_string)
+            }
+            Err(response) => {
+                let body_string = response.body_string().await.unwrap();
+                eprintln!("ERROR:");
+                dbg!(&body_string);
+                Err(body_string)
+            }
+        }
+    })
+}
+
+
 async fn curl(req: Request, token: Option<String>) -> Result<Response, Response> {
     let url = req.url().clone();
-    let user_agent = format!("{} v{}", env!("CARGO_PKG_NAME"),env!("CARGO_PKG_VERSION"));
+    let user_agent = format!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
     let method = req.method().to_string();
     let body = req.body_string().await.unwrap();
     let token = token.unwrap_or_else(|| "".to_string());
@@ -44,32 +73,4 @@ async fn curl(req: Request, token: Option<String>) -> Result<Response, Response>
         response.set_body(stderr);
         Err(response)
     }
-}
-
-pub fn http_client(
-    url: String,
-    token: Option<String>,
-    body_string: Option<String>,
-) -> Result<String, String> {
-    use async_std::task;
-    use http_types::{Method, Url};
-
-    task::block_on(async {
-        let mut req = Request::new(Method::Get, Url::parse(&url).unwrap());
-        let body_string = body_string.unwrap_or_else(|| "".to_string());
-        req.set_body(body_string);
-        match curl(req, token).await {
-            Ok(response) => {
-                let body_string = response.body_string().await.unwrap();
-                println!("{}", &body_string);
-                Ok(body_string)
-            }
-            Err(response) => {
-                let body_string = response.body_string().await.unwrap();
-                eprintln!("ERROR:");
-                dbg!(&body_string);
-                Err(body_string)
-            }
-        }
-    })
 }

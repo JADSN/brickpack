@@ -1,6 +1,5 @@
-use http_types::StatusCode;
 use serde::Deserialize;
-use tide::{Request, Response};
+use tide::{Request, Response, StatusCode, Error};
 
 use crate::auth::{is_authenticated};
 use crate::global_state::State;
@@ -21,7 +20,7 @@ pub async fn handler(mut request: Request<State>) -> tide::Result {
         let maintenance: Maintenance = match request.body_json().await {
             Ok(data) => data,
             Err(error) => {
-                return Err(http_types::Error::from_str(
+                return Err(Error::from_str(
                     StatusCode::BadRequest,
                     format!("Invalid body -> Err({})", error),
                 ))
@@ -37,7 +36,7 @@ pub async fn handler(mut request: Request<State>) -> tide::Result {
             Err(error) => Ok(Response::new(StatusCode::Ok).body_json(&error).unwrap()),
         }
     } else {
-        Err(http_types::Error::from_str(
+        Err(Error::from_str(
             StatusCode::Unauthorized,
             "Access Denied",
         ))

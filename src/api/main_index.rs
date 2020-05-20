@@ -1,5 +1,4 @@
-use http_types::StatusCode;
-use tide::{Request, Response};
+use tide::{Request, Response, StatusCode};
 
 use crate::auth::is_in_maintenance_mode;
 use crate::global_state::State;
