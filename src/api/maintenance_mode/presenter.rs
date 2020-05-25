@@ -1,7 +1,7 @@
 use serde::Deserialize;
-use tide::{Request, Response, StatusCode, Error};
+use tide::{Error, Request, Response, StatusCode};
 
-use crate::auth::{is_authenticated};
+use crate::auth::token::is_authenticated;
 use crate::global_state::State;
 
 use super::model;
@@ -36,9 +36,6 @@ pub async fn handler(mut request: Request<State>) -> tide::Result {
             Err(error) => Ok(Response::new(StatusCode::Ok).body_json(&error).unwrap()),
         }
     } else {
-        Err(Error::from_str(
-            StatusCode::Unauthorized,
-            "Access Denied",
-        ))
+        Err(Error::from_str(StatusCode::Unauthorized, "Access Denied"))
     }
 }

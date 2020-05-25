@@ -10,7 +10,7 @@ pub async fn dispatcher(mut request: Request<State>) -> Result<Response, Respons
             } else {
                 None
             }
-        },
+        }
         Err(error) => {
             eprintln!("ERROR: {}", error);
             None
@@ -19,7 +19,7 @@ pub async fn dispatcher(mut request: Request<State>) -> Result<Response, Respons
 
     let endpoint: String = match request.param("endpoint") {
         Ok(endpoint) => endpoint,
-        Err(_) => "".to_string()
+        Err(_) => "".to_string(),
     };
 
     if let Some(handler) = request.state().brickpack.get_handler(endpoint) {

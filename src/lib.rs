@@ -57,7 +57,7 @@ impl App {
                 .patch(crate::api::maintenance_mode::presenter::handler);
             app.at("/api/:endpoint")
                 .post(crate::api::dispatcher::presenter::handler);
-            match crate::auth::get_token_from_env() {
+            match crate::auth::token::get_token_from_env() {
                 Some(token) => {
                     println!();
                     println!("CLIENT_TOKEN: {}", token);

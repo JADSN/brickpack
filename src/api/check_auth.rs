@@ -1,7 +1,7 @@
 use tide::{Request, Response, StatusCode};
 
 use crate::api::{BodyResponse, StatusMessage};
-use crate::auth::{is_authenticated, is_in_maintenance_mode};
+use crate::auth::token::{is_authenticated, is_in_maintenance_mode};
 use crate::global_state::State;
 
 pub async fn handler(request: Request<State>) -> tide::Result {

@@ -1,5 +1,4 @@
 use std::process::Command;
-// use std::str::FromStr;
 
 pub fn http_client(
     method: String,
