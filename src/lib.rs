@@ -1,14 +1,16 @@
 #![warn(clippy::all)]
+#![recursion_limit="256"]
 
 mod api;
 mod auth;
 mod global_state;
 pub mod http_client;
 
+use crate::global_state::State;
+use async_std::task;
 use http_types::Response;
 use std::collections::HashMap;
-
-use crate::global_state::State;
+use tide::Server;
 
 #[derive(Debug, Default)]
 pub struct App {
@@ -40,8 +42,6 @@ impl App {
     }
 
     pub fn run(self) -> Result<(), std::io::Error> {
-        use async_std::task;
-        use tide::Server;
         const DEFAULT_LISTEN: &str = "127.0.0.1:8000";
         task::block_on(async {
             let listen = if self.get_listen().is_empty() {

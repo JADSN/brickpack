@@ -1,12 +1,13 @@
+use http_types::headers::AUTHORIZATION;
 use tide::Request;
 
 use crate::global_state::State;
 
 fn get_token_from_request(request: &Request<State>) -> Option<String> {
-    match request.header(&"Authorization".parse().unwrap()) {
-        Some(vec) => match vec.first() {
-            Some(header_value) => {
-                let header_value = header_value.to_string();
+    match request.header(AUTHORIZATION) {
+        Some(header) => match header.get(0) {
+            Some(value) => {
+                let header_value = value.to_string();
                 match header_value.split_whitespace().last() {
                     Some(token) => Some(token.to_string()),
                     None => None,

@@ -9,18 +9,18 @@ pub fn http_client(
     token: Option<String>,
     body_string: Option<String>,
 ) -> Result<String, String> {
+    let parsed_method = Method::from_str(&method).unwrap();
+    let mut req = Request::new(parsed_method, Url::parse(&url).unwrap());
+    let body_string = body_string.unwrap_or_else(|| "".to_string());
+    req.set_body(body_string);
     task::block_on(async {
-        let parsed_method = Method::from_str(&method).unwrap();
-        let mut req = Request::new(parsed_method, Url::parse(&url).unwrap());
-        let body_string = body_string.unwrap_or_else(|| "".to_string());
-        req.set_body(body_string);
         match curl(req, token).await {
-            Ok(response) => {
+            Ok(mut response) => {
                 let body_string = response.body_string().await.unwrap();
                 println!("{}", &body_string);
                 Ok(body_string)
             }
-            Err(response) => {
+            Err(mut response) => {
                 let body_string = response.body_string().await.unwrap();
                 eprintln!("ERROR:");
                 dbg!(&body_string);
@@ -30,7 +30,7 @@ pub fn http_client(
     })
 }
 
-async fn curl(req: Request, token: Option<String>) -> Result<Response, Response> {
+async fn curl(mut req: Request, token: Option<String>) -> Result<Response, Response> {
     let url = req.url().clone();
     let user_agent = format!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
     let method = req.method().to_string();

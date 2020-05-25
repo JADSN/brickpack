@@ -5,14 +5,14 @@ authors = ['Antonio Feitosa <antonio.cfc@gmail.com>']
 edition = '2018'
 
 [dependencies]
-tide = '0.8.1'
+tide = '0.9.0'
 mime = '0.3.16'
-http-types = '1.2.0'
+http-types = '2.0.1'
 
 [dependencies.serde]
 features = ['derive']
 version = '1.0.110'
 
 [dependencies.async-std]
-version = '1.5.0'
+version = '1.6.0'
 features = ['attributes']
