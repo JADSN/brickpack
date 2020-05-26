@@ -8,7 +8,7 @@ edition = '2018'
 tide = '0.9.0'
 mime = '0.3.16'
 http-types = '2.0.1'
-async-std = '1.6.0'
+smol = "0.1.10"
 
 [dependencies.serde]
 features = ['derive']
